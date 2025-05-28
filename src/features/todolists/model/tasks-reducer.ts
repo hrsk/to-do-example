@@ -1,5 +1,4 @@
 import {createAction, createReducer, nanoid} from "@reduxjs/toolkit";
-import {TasksState} from "../App.tsx";
 import {createTodolistAC, deleteTodolistAC} from "./todolists-reducer.ts";
 
 //инициализационный стэйт для тасок
@@ -53,4 +52,15 @@ export const tasksReducer = createReducer(initialState, builder => {
             }
         })
 })
+
+//types
+
+export type Task = {
+    id: string
+    title: string
+    isDone: boolean
+}
+
+export type TasksState = Record<string, Task[]>
+
 
