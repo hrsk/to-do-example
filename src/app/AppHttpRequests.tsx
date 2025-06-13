@@ -48,6 +48,10 @@ export const AppHttpRequests = () => {
     }
 
     const deleteTask = (todolistId: string, taskId: string) => {
+        tasksApi.deleteTask({todolistId, taskId}).then(() => {
+            delete tasks[todolistId]
+            setTasks({...tasks})
+        })
     }
 
     const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>, task: DomainTask) => {
@@ -70,7 +74,25 @@ export const AppHttpRequests = () => {
         })
     }
 
-    const changeTaskTitle = (task: any, title: string) => {
+    const changeTaskTitle = (task: DomainTask, title: string) => {
+        const todolistId = task.todoListId
+
+        const model: UpdateTaskModel = {
+            description: task.description,
+            title: title,
+            priority: task.priority,
+            startDate: task.startDate,
+            deadline: task.deadline,
+            status: task.status,
+        }
+
+        tasksApi.updateTask({todolistId, taskId: task.id, model}).then(() => {
+            setTasks({
+                ...tasks,
+                [todolistId]: tasks[todolistId].filter((t) => t.id !== task.id ? {...task, model} : task)
+            })
+        })
+
     }
 
     return (
