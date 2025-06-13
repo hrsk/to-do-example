@@ -5,6 +5,7 @@ import {Todolist} from "@/features/todolists/api/todolistsApi.types.ts"
 import {CreateItemForm, EditableSpan} from "@/common/components"
 import {tasksApi} from "@/features/todolists/api/tasksApi.ts";
 import {DomainTask, UpdateTaskModel} from "@/features/todolists/api/tasksApi.types.ts";
+import {TaskStatus} from "@/common/enums/enums.ts";
 
 export const AppHttpRequests = () => {
     const [todolists, setTodolists] = useState<Todolist[]>([])
@@ -58,13 +59,13 @@ export const AppHttpRequests = () => {
             priority: task.priority,
             startDate: task.startDate,
             deadline: task.deadline,
-            status: e.target.checked ? 2 : 0,
+            status: e.target.checked ? TaskStatus.Completed : TaskStatus.InProgress,
         }
 
         tasksApi.updateTask({todolistId, taskId: task.id, model}).then(() => {
             setTasks({
                 ...tasks,
-                [todolistId]: tasks[todolistId].filter((t) => t.id !== task.id ? {...task, model } : task)
+                [todolistId]: tasks[todolistId].filter((t) => t.id !== task.id ? {...task, model} : task)
             })
         })
     }
@@ -85,7 +86,8 @@ export const AppHttpRequests = () => {
                     <CreateItemForm onCreateItem={(title) => createTask(todolist.id, title)}/>
                     {tasks[todolist.id]?.map((task: any) => (
                         <div key={task.id}>
-                            <Checkbox checked={task.status === 2} onChange={(e) => changeTaskStatus(e, task)}/>
+                            <Checkbox checked={task.status === TaskStatus.Completed}
+                                      onChange={(e) => changeTaskStatus(e, task)}/>
                             <EditableSpan value={task.title} onChange={(title) => changeTaskTitle(task, title)}/>
                             <button onClick={() => deleteTask(todolist.id, task.id)}>x</button>
                         </div>
