@@ -15,3 +15,12 @@ export type GetTasksResponse = {
     totalCount: number
     items: DomainTask[]
 }
+
+export type UpdateTaskModel = {
+    description: string
+    title: string
+    status: number
+    priority: number
+    startDate: string
+    deadline: string
+}
