@@ -1,4 +1,4 @@
-import { changeThemeModeAC } from "@/app/app-reducer"
+import { changeThemeModeAC } from "@/app/app-slice.ts"
 import { selectThemeMode } from "@/app/app-selectors"
 import { useAppDispatch } from "@/common/hooks/useAppDispatch"
 import { useAppSelector } from "@/common/hooks/useAppSelector"
