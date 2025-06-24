@@ -34,27 +34,35 @@ export const todolistsSlice = createSlice({
                 todolist.filter = action.payload.filter
             }
         }),
-        setTodolistsAC: create.reducer<{ todolists: Todolist[] }>((state, action) => {
+    }),
+    extraReducers: builder => {
+        builder.addCase(getTodolistsThunk.fulfilled, (state, action) => {
             return {
                 ...state.todolists, todolists: action.payload.todolists.map(td => {
                     return {...td, filter: 'all'}
                 })
             }
-        }),
-    }),
+        })
+            .addCase(getTodolistsThunk.rejected, (_) => {
+                //если ошибка
+            })
+    },
     selectors: {
         selectTodolists: (state): DomainTodolist[] => state.todolists
     }
 })
 
-export const getTodolistsThunk = createAsyncThunk(`${todolistsSlice.name}/getTodolistsThunk`, (_, thunkAPI) => {
+export const getTodolistsThunk = createAsyncThunk(`${todolistsSlice.name}/getTodolistsThunk`, async (_, thunkAPI) => {
 
-    const {dispatch} = thunkAPI
+    const {rejectWithValue} = thunkAPI
 
-    todolistsApi.getTodolists().then(res => {
-        dispatch(setTodolistsAC({todolists: res.data}))
-    })
+    const response = await todolistsApi.getTodolists()
 
+    try {
+        return {todolists: response.data}
+    } catch (e) {
+        return rejectWithValue(e)
+    }
 })
 
 
@@ -64,7 +72,6 @@ export const {
     createTodolistAC,
     changeTodolistTitleAC,
     changeTodolistFilterAC,
-    setTodolistsAC,
 } = todolistsSlice.actions
 export const {selectTodolists} = todolistsSlice.selectors
 
