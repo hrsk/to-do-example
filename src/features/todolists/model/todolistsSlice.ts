@@ -46,6 +46,12 @@ export const todolistsSlice = createSlice({
             .addCase(getTodolistsThunk.rejected, (_) => {
                 //если ошибка
             })
+        builder.addCase(changeTodolistTitleThunk.fulfilled, (state, action) => {
+            const index = state.todolists.findIndex((todolist) => todolist.id === action.payload.id)
+            if (index !== -1) {
+                state.todolists[index].title = action.payload.title
+            }
+        })
     },
     selectors: {
         selectTodolists: (state): DomainTodolist[] => state.todolists
@@ -65,6 +71,21 @@ export const getTodolistsThunk = createAsyncThunk(`${todolistsSlice.name}/getTod
     }
 })
 
+export const changeTodolistTitleThunk = createAsyncThunk(`${todolistsSlice.name}/changeTodolistTitleThunk`, async (arg: {
+    id: string,
+    title: string
+}, thunkAPI) => {
+
+    const {rejectWithValue} = thunkAPI
+
+    await todolistsApi.changeTodolistTitle(arg)
+
+    try {
+        return arg
+    } catch (e) {
+        return rejectWithValue(e)
+    }
+})
 
 export const todolistsReducer = todolistsSlice.reducer
 export const {
