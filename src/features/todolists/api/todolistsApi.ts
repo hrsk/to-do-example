@@ -1,11 +1,10 @@
 import { instance } from "@/common/instance"
 import type { BaseResponse } from "@/common/types"
 import type { Todolist } from "./todolistsApi.types"
-import {TodolistDomain} from "@/features/todolists/model/todolists-reducer.ts";
 
 export const todolistsApi = {
   getTodolists() {
-    return instance.get<TodolistDomain[]>("/todo-lists")
+    return instance.get<Todolist[]>("/todo-lists")
   },
   changeTodolistTitle(payload: { id: string; title: string }) {
     const { id, title } = payload
