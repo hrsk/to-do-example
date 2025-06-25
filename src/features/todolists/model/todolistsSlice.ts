@@ -52,6 +52,21 @@ export const todolistsSlice = createSlice({
                 state.todolists[index].title = action.payload.title
             }
         })
+        builder.addCase(createTodolistThunk.fulfilled, (state, action) => {
+            state.todolists.unshift({
+                id: action.payload.todolist.id,
+                title: action.payload.todolist.title,
+                addedDate: '',
+                order: 1,
+                filter: 'all'
+            })
+        })
+        builder.addCase(deleteTodolistThunk.fulfilled, (state, action) => {
+            const index = state.todolists.findIndex((todolist) => todolist.id === action.payload.todolistId)
+            if (index !== -1) {
+                state.todolists.splice(index, 1)
+            }
+        })
     },
     selectors: {
         selectTodolists: (state): DomainTodolist[] => state.todolists
@@ -86,6 +101,50 @@ export const changeTodolistTitleThunk = createAsyncThunk(`${todolistsSlice.name}
         return rejectWithValue(e)
     }
 })
+
+export const createTodolistThunk = createAsyncThunk(`${todolistsSlice.name}/createTodolistThunk`, async (arg: {
+    title: string
+}, thunkAPI) => {
+
+    const {rejectWithValue} = thunkAPI
+
+    const res = await todolistsApi.createTodolist(arg.title)
+
+    try {
+        return {todolist: res.data.data.item}
+    } catch (e) {
+        return rejectWithValue(e)
+    }
+})
+export const deleteTodolistThunk = createAsyncThunk(`${todolistsSlice.name}/deleteTodolistThunk`, async (arg: {
+    todolistId: string
+}, thunkAPI) => {
+
+    const {rejectWithValue} = thunkAPI
+
+    // const {todolistId} = arg
+
+    await todolistsApi.deleteTodolist(arg.todolistId)
+
+    try {
+        return {todolistId: arg.todolistId}
+    } catch (e) {
+        return rejectWithValue(e)
+    }
+})
+
+// export const deleteTodolistThunk = createAsyncThunk(`${todolistsSlice.name}/deleteTodolistThunk`, async (id: string, thunkAPI) => {
+//
+//     const {rejectWithValue} = thunkAPI
+//
+//     await todolistsApi.deleteTodolist(id)
+//
+//     try {
+//         return {id}
+//     } catch (e) {
+//         return rejectWithValue(e)
+//     }
+// })
 
 export const todolistsReducer = todolistsSlice.reducer
 export const {
