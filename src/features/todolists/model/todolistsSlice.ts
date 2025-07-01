@@ -2,6 +2,7 @@ import {nanoid} from "@reduxjs/toolkit";
 import {Todolist} from "@/features/todolists/api/todolistsApi.types.ts";
 import {todolistsApi} from "@/features/todolists/api/todolistsApi.ts";
 import {createAppSlice} from "@/common/utils/createAppSlice.ts";
+import {setAppStatus} from "@/app/appSlice.ts";
 
 export const todolistsSlice = createAppSlice({
     name: 'todolists',
@@ -11,13 +12,18 @@ export const todolistsSlice = createAppSlice({
     reducers: create => ({
         getTodolistsThunk: create.asyncThunk(async (_, thunkAPI) => {
 
-                const {rejectWithValue} = thunkAPI
+                const {dispatch, rejectWithValue} = thunkAPI
+
+                dispatch(setAppStatus({isLoading: 'loading'}))
 
                 const response = await todolistsApi.getTodolists()
 
                 try {
+                    dispatch(setAppStatus({isLoading: 'succeeded'}))
                     return {todolists: response.data}
                 } catch (e) {
+                    dispatch(setAppStatus({isLoading: 'failed'}))
+
                     return rejectWithValue(e)
                 }
             }, {
@@ -33,13 +39,17 @@ export const todolistsSlice = createAppSlice({
             title: string
         }, thunkAPI) => {
 
-            const {rejectWithValue} = thunkAPI
+            const {dispatch, rejectWithValue} = thunkAPI
+
+            dispatch(setAppStatus({isLoading: 'loading'}))
 
             await todolistsApi.changeTodolistTitle(args)
 
             try {
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
                 return args
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {
@@ -56,13 +66,17 @@ export const todolistsSlice = createAppSlice({
                 title: string
             }, thunkAPI) => {
 
-                const {rejectWithValue} = thunkAPI
+                const {dispatch, rejectWithValue} = thunkAPI
+
+                dispatch(setAppStatus({isLoading: 'loading'}))
 
                 const res = await todolistsApi.createTodolist(args.title)
 
                 try {
+                    dispatch(setAppStatus({isLoading: 'succeeded'}))
                     return {todolist: res.data.data.item}
                 } catch (e) {
+                    dispatch(setAppStatus({isLoading: 'failed'}))
                     return rejectWithValue(e)
                 }
             }, {
@@ -81,13 +95,16 @@ export const todolistsSlice = createAppSlice({
             todolistId: string
         }, thunkAPI) => {
 
-            const {rejectWithValue} = thunkAPI
+            const {dispatch, rejectWithValue} = thunkAPI
+            dispatch(setAppStatus({isLoading: 'loading'}))
 
             await todolistsApi.deleteTodolist(args.todolistId)
 
             try {
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
                 return {todolistId: args.todolistId}
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {

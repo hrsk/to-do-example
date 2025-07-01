@@ -2,6 +2,7 @@ import {createTodolistAC, deleteTodolistAC} from "@/features/todolists/model/tod
 import {createAppSlice} from "@/common/utils/createAppSlice.ts";
 import {tasksApi} from "@/features/todolists/api/tasksApi.ts";
 import {DomainTask, UpdateTaskModel} from "@/features/todolists/api/tasksApi.types.ts";
+import {setAppStatus} from "@/app/appSlice.ts";
 
 export const tasksSlice = createAppSlice({
     name: 'tasks',
@@ -9,11 +10,14 @@ export const tasksSlice = createAppSlice({
         tasks: {} as TasksState
     },
     reducers: create => ({
-        fetchTasks: create.asyncThunk(async (args: { todolistId: string }, {rejectWithValue}) => {
+        fetchTasks: create.asyncThunk(async (args: { todolistId: string }, {dispatch, rejectWithValue}) => {
             try {
+                dispatch(setAppStatus({isLoading: 'loading'}))
                 const res = await tasksApi.getTasks(args.todolistId)
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
                 return {tasks: res.data.items, todolistId: args.todolistId}
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {
@@ -21,14 +25,21 @@ export const tasksSlice = createAppSlice({
                 state.tasks[action.payload.todolistId] = action.payload.tasks
             }
         }),
-        createTaskThunk: create.asyncThunk(async (args: { todolistId: string; title: string }, {rejectWithValue}) => {
+        createTaskThunk: create.asyncThunk(async (args: { todolistId: string; title: string }, {
+            dispatch,
+            rejectWithValue
+        }) => {
 
             try {
+                dispatch(setAppStatus({isLoading: 'loading'}))
                 const response = await tasksApi.createTask(args)
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
+
                 return {
                     task: response.data.data.item
                 }
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {
@@ -36,11 +47,17 @@ export const tasksSlice = createAppSlice({
                 state.tasks[action.payload.task.todoListId].unshift(action.payload.task)
             }
         }),
-        deleteTaskThunk: create.asyncThunk(async (args: { todolistId: string, taskId: string }, {rejectWithValue}) => {
+        deleteTaskThunk: create.asyncThunk(async (args: { todolistId: string, taskId: string }, {
+            dispatch,
+            rejectWithValue
+        }) => {
             try {
+                dispatch(setAppStatus({isLoading: 'loading'}))
                 await tasksApi.deleteTask(args)
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
                 return {task: {}, todolistId: args.todolistId, taskId: args.taskId}
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {
@@ -56,18 +73,21 @@ export const tasksSlice = createAppSlice({
             todolistId: string,
             taskId: string,
             updateModel: UpdateTaskModel
-        }, {rejectWithValue}) => {
+        }, {dispatch, rejectWithValue}) => {
 
             try {
                 const updateTaskModel: UpdateTaskModel = {...args.updateModel}
 
+                dispatch(setAppStatus({isLoading: 'loading'}))
                 const res = await tasksApi.updateTask({
                     todolistId: args.todolistId,
                     taskId: args.taskId,
                     model: updateTaskModel
                 })
+                dispatch(setAppStatus({isLoading: 'succeeded'}))
                 return {task: res.data.data.item}
             } catch (e) {
+                dispatch(setAppStatus({isLoading: 'failed'}))
                 return rejectWithValue(e)
             }
         }, {
